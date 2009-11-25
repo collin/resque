@@ -1,0 +1,3 @@
+[submodule "vendor/csp"]
+	path = vendor/csp
+	url = git@github.com:collin/orbited-ruby.git

@@ -1,5 +1,5 @@
 require 'sinatra/base'
-require 'erb'
+require 'haml'
 require 'resque'
 require 'resque/version'
 
@@ -33,7 +33,7 @@ module Resque
       end
 
       def class_if_current(page = '')
-        'class="current"' if current_page.include? page.to_s
+        {:class => :current} if current_page.include? page.to_s
       end
 
       def tab(name)
@@ -77,7 +77,7 @@ module Resque
 
       def partial(template, local_vars = {})
         @partial = true
-        erb(template.to_sym, {:layout => false}, local_vars)
+        haml(template.to_sym, {:layout => false}, local_vars)
       ensure
         @partial = false
       end
@@ -95,9 +95,9 @@ module Resque
 
     def show(page, layout = true)
       begin
-        erb page.to_sym, {:layout => layout}, :resque => Resque
+        haml page.to_sym, {:layout => layout}, :resque => Resque
       rescue Errno::ECONNREFUSED
-        erb :error, {:layout => false}, :error => "Can't connect to Redis! (#{Resque.redis.server})"
+        haml :error, {:layout => false}, :error => "Can't connect to Redis! (#{Resque.redis.server})"
       end
     end
 
