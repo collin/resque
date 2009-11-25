@@ -1,0 +1,71 @@
+%h1 Failed
+%ul.failure_queues
+  - Resque::Failure.error_queues.each do |queue|
+    %li[queue]
+      - if queue.any?
+        %h2= queue.name
+        .count #{queue.size} failures
+        .message= queue.message
+        .class= queue.payload["class"]
+        .sample_arguments= queue.payload["args"]
+        %ol.stacktrace
+          - queue.stacktrace.each do |line|
+            %li
+              %a{:href => line}= line
+      - else
+        %p No failures for #{queue.name}
+        .tools
+          %button.reschedule Reschedule
+          %button.remove Remove
+      
+/ - failed = Resque::Failure.all(start, 20)
+/ %h1
+/   Failed Jobs
+/ - unless failed.empty?
+/   %form.clear-failed{ :action => url('failed/clear'), :method => "POST" }
+/     %input{ :name => "", :type => "submit", :value => "Clear Failed Jobs" }
+/ 
+/ %p.sub
+/   Showing
+/   = start
+/   to
+/   = start + 20
+/   of
+/   %b
+/     = size = Resque::Failure.count
+/   jobs
+/ %ul.failed
+/   - for job in failed
+/     %li
+/       %dl
+/         %dt
+/           Worker
+/         %dd
+/           %a{ :href => url(:workers, job['worker']) }
+/             = job['worker'].split(':')[0...2].join(':')
+/           on
+/           %b.queue-tag
+/             = job['queue']
+/           at
+/           %b
+/             %span.time
+/               = job['failed_at']
+/         %dt
+/           Class
+/         %dd
+/           %code
+/             = job['payload']['class']
+/         %dt
+/           Arguments
+/         %dd
+/           %pre
+/             = h show_args(job['payload']['args'])
+/         %dt
+/           Error
+/         %dd.error
+/           %a.backtrace{ :href => "#" }
+/             = h(job['error'])
+/           %pre{ :style => "display:none" }
+/             = h job['backtrace'].join("\n")
+/       .r
+/ = partial :next_more, :start => start, :size => size

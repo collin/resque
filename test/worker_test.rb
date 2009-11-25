@@ -78,7 +78,7 @@ context "Resque::Worker" do
       processed_queues << job.queue
     end
 
-    assert_equal %w( jobs high critical blahblah ).sort, processed_queues
+    assert_equal %w( jobs high critical blahblah ).sort, processed_queues.map{|q| q.name }
   end
 
   test "has a unique id" do

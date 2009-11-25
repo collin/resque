@@ -1,0 +1,97 @@
+- if params[:id] && worker = Resque::Worker.find(params[:id])
+  %h1
+    Worker
+    = worker
+  %table.workers
+    %tr
+      %th
+        \&nbsp;
+      %th
+        Host
+      %th
+        Pid
+      %th
+        Started
+      %th
+        Queues
+      %th
+        Processed
+      %th
+        Failed
+      %th
+        Processing
+    %tr
+      %td.icon
+        %img{ :title => state, :src => "#{u state = worker.state}.png", :alt => state }
+      - host, pid, queues = worker.to_s.split(':')
+      %td
+        = host
+      %td
+        = pid
+      %td
+        %span.time
+          = worker.started
+      %td.queues
+        = queues.split(',').map { |q| '<a class="queue-tag" href="' + url("/queues/#{q}") + '">' + q + '</a>'}.join('')
+      %td
+        = worker.processed
+      %td
+        = worker.failed
+      %td.process
+        - data = worker.processing || {}
+        - if data['queue']
+          %code
+            = data['payload']['class']
+          %small
+            %a.queue.time{ :href => u &quot;/working/#{worker}&quot; }
+              = data['run_at']
+        - else
+          %span.waiting
+            Waiting for a job...
+- elsif params[:id]
+  %h1
+    Worker doesn't exist
+- else
+  %h1.wi
+    = resque.workers.size
+    Workers
+  %p.intro
+    The workers listed below are all registered as active on your system.
+  %table.workers
+    %tr
+      %th
+        \&nbsp;
+      %th
+        Where
+      %th
+        Queues
+      %th
+        Processing
+    - for worker in (workers = resque.workers.sort_by { |w| w.to_s })
+      %tr{ :class => state = worker.state }
+        %td.icon
+          %img{ :title => state, :src => "#{u state}.png", :alt => state }
+        - host, pid, queues = worker.to_s.split(':')
+        %td.where
+          %a{ :href => u &quot;workers/#{worker}&quot; }
+            = host
+            \:
+            = pid
+        %td.queues
+          = queues.split(',').map { |q| '<a class="queue-tag" href="' + url("/queues/#{q}") + '">' + q + '</a>'}.join('')
+        %td.process
+          - data = worker.processing || {}
+          - if data['queue']
+            %code
+              = data['payload']['class']
+            %small
+              %a.queue.time{ :href => u &quot;/working/#{worker}&quot; }
+                = data['run_at']
+          - else
+            %span.waiting
+              Waiting for a job...
+    - if workers.empty?
+      %tr
+        %td.no-data{ :colspan => "4" }
+          There are no registered workers
+  = poll

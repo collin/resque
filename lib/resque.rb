@@ -6,7 +6,10 @@ rescue LoadError
   require 'json'
 end
 
+require 'set'
+
 require 'resque/errors'
+require 'resque/queue_set'
 
 require 'resque/failure'
 require 'resque/failure/base'
@@ -97,7 +100,7 @@ module Resque
 
   # Returns an array of all known Resque queues as strings.
   def queues
-    redis.smembers(:queues)
+    QueueSet.new(:queues)
   end
 
   # Given a queue name, completely deletes the queue.

@@ -32,6 +32,7 @@ module Resque
     # back to `Resque::Failure::Redis`
     def self.backend
       return @backend if @backend
+      require 'resque/failure/queue_per_error'
       require 'resque/failure/redis'
       @backend = Failure::Redis
     end

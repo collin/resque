@@ -134,7 +134,7 @@ module Resque
     
     post "/failed/clear" do
       Resque::Failure.clear
-      redirect u('failed')
+      redirect url('failed')
     end
 
     get "/stats" do

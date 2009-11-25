@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+%html
+  %head
+    %title
+      Resque.
+    %link{ :href => url('reset.css'), :rel => "stylesheet", :type => "text/css", :media => "screen" }
+    %link{ :href => url('style.css'), :rel => "stylesheet", :type => "text/css", :media => "screen" }
+    %script{ :src => url("jquery-1.3.2.min.js") }
+    %script{ :src => url("jquery.relatize_date.js") }
+    %script{ :src => url("ranger.js") }
+  %body
+    .header
+      %ul.nav
+        = tab "Overview"
+        = tab "Working"
+        = tab "Failed"
+        = tab "Queues"
+        = tab "Workers"
+        = tab "Stats"
+    - if @subtabs
+      %ul.subnav
+        - for subtab in @subtabs
+          %li
+            %a{ :href => "#{current_section}/#{subtab}" }
+              %span
+                = subtab
+    #main
+      = yield
+    #footer
+      %p
+        Powered by
+        %a{ :href => "http://github.com/collin/resque" }
+          collin/Resque
+        Forked from
+        %a{ :href => "http://github.com/defunkt/resque" }
+          defunkt/Resque
+        
+        v
+        = Resque::Version
+      %p
+        Connected to Redis on
+        = Resque.redis.server

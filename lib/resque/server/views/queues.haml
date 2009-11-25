@@ -1,0 +1,74 @@
+- @subtabs = resque.queues unless partial?
+- if queue = params[:id]
+  %h1
+    Pending jobs on
+    %span.hl
+      = queue
+  %p.sub
+    Showing
+    = start = params[:start].to_i
+    to
+    = start + 20
+    of
+    %b
+      = size = resque.size(queue)
+    jobs
+  %table.jobs
+    %tr
+      %th
+        Class
+      %th
+        Args
+    - for job in (jobs = resque.peek(queue, start, 20))
+      %tr
+        %td.class
+          = job['class']
+        %td.args
+          = h job['args'].inspect
+    - if jobs.empty?
+      %tr
+        %td.no-data{ :colspan => "2" }
+          There are no pending jobs in this queue
+  = partial :next_more, :start => start, :size => size
+- else
+  %style
+    :sass
+      .queues
+        list-style: none
+        margin: 0
+        padding: 0
+        li
+          img
+            opacity: 0.05
+          &:hover
+            background: #fafafa
+            img
+              opacity: 0.4
+              &:hover
+                opacity: 1
+    
+  %h1
+    Queues
+  %p.intro
+    The list below contains all the registered queues with the number of jobs currently in the queue. Select a queue from above to view all jobs currently pending on the queue.
+  %h2 Concurrency Level:
+  %input{:type=>:text, :value => '0'}
+  %ol.queues
+    - for queue in resque.queues
+      %li
+        %img{:src=>u("sort.png")}
+        %img{:src=>u("stop.png")}
+        %span.size
+          = queue.size
+        %a.queue{ :href => url("queues/#{queue}") }
+          = queue.name
+        - if queue.failure_queues.any?
+          %ul.failures
+            - queue.failure_queues.each do |failure_queue|
+              %li
+                %a{:href=>url("failures/#{failure_queue}")}= failure_queue
+  .failed
+    %a.queue{ :href => url(:failed) }
+      failed
+    %span.size
+      = Resque::Failure.count

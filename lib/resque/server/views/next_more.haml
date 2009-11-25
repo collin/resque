@@ -1,0 +1,8 @@
+- if  start - 20 >= 0 || start + 20 <= size
+  %p.pagination
+    - if start - 20 >= 0
+      %a.less{ :href => "#{current_page}?start=#{start - 20}" }
+        \&laquo; less
+    - if start + 20 <= size
+      %a.more{ :href => "#{current_page}?start=#{start + 20}" }
+        more &raquo;

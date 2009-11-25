@@ -1,0 +1,87 @@
+- if params[:id] && (worker = Resque::Worker.find(params[:id])) && worker.job
+  %h1
+    = worker
+    's job
+  %table
+    %tr
+      %th
+        \&nbsp;
+      %th
+        Where
+      %th
+        Queue
+      %th
+        Started
+      %th
+        Class
+      %th
+        Args
+    %tr
+      %td
+        %img{ :title => "working", :src => url('working.png'), :alt => "working" }
+      - host, pid, _ = worker.to_s.split(':')
+      %td
+        %a{ :href => url("/workers/#{worker}") }
+          = host
+          \:
+          = pid
+      - data = worker.job
+      - queue = data['queue']
+      %td
+        %a.queue{ :href => url("/queues/#{queue}") }
+          = queue
+      %td
+        %span.time
+          = data['run_at']
+      %td
+        %code
+          = data['payload']['class']
+      %td
+        = h data['payload']['args'].inspect
+- else
+  - workers = resque.working
+  %h1.wi
+    = workers.size
+    of
+    = resque.workers.size
+    Workers Working
+  %p.intro
+    The list below contains all workers which are currently running a job.
+  %table.workers
+    %tr
+      %th
+        \&nbsp;
+      %th
+        Where
+      %th
+        Queue
+      %th
+        Processing
+    - if workers.empty?
+      %tr
+        %td.no-data{ :colspan => "4" }
+          Nothing is happening right now...
+    - for worker in workers.sort_by { |w| w.job['run_at'] ? w.job['run_at'] : '' }
+      - job = worker.job
+      %tr
+        %td.icon
+          %img{ :title => state, :src => "#{u state = worker.state}.png", :alt => state }
+        - host, pid, queues = worker.to_s.split(':')
+        %td.where
+          %a{ :href => url("/workers/#{worker}") }
+            = host
+            \:
+            = pid
+        %td.queues.queue
+          %a.queue-tag{ :href => url("/queues/#{job['queue']}") }
+            = job['queue']
+        %td.process
+          - if job['queue']
+            %code
+              = job['payload']['class']
+            %small
+              %a.queue.time{ :href => url("/working/#{worker}") }
+                = job['run_at']
+          - else
+            %span.waiting
+              Waiting for a job...

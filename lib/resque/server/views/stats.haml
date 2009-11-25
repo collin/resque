@@ -1,0 +1,46 @@
+- @subtabs = %w( resque redis keys )
+- if params[:key]
+  = partial :key
+- elsif params[:id] == "resque"
+  %h1
+    = resque
+  %table.stats
+    - for key, value in resque.info.to_a.sort_by { |i| i[0].to_s }
+      %tr
+        %th
+          = key
+        %td
+          = value
+- elsif params[:id] == 'redis'
+  %h1
+    = resque.redis.server
+  %table.stats
+    - for key, value in resque.redis.info.to_a.sort_by { |i| i[0].to_s }
+      %tr
+        %th
+          = key
+        %td
+          = value
+- elsif params[:id] == 'keys'
+  %h1
+    Keys owned by
+    = resque
+  %p.sub
+    (All keys are actually prefixed with "resque:")
+  %table.stats
+    %tr
+      %th
+        key
+      %th
+        type
+      %th
+        size
+    - for key in resque.keys.sort
+      %tr
+        %th
+          %a{ :href => "/stats/keys/#{key}" }
+            = key
+        %td
+          = resque.redis.type key
+        %td
+          = redis_get_size key
