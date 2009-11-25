@@ -18,7 +18,7 @@ module Resque
     end
     
     def key
-      "#{@queue_name}"
+      @queue_name
     end
     
     def any?
@@ -31,7 +31,7 @@ module Resque
     alias to_s name
     
     def count
-      Resque.redis.llen(key).to_i
+      Resque.size(key)
     end
     alias size count
     
@@ -60,7 +60,17 @@ module Resque
     def unimplemented
       raise "Unimplemented"
     end
-    alias schedule unimplemented
+    
+    def count
+      Resque.redis.llen(@queue_name).to_i
+    end
+    
+    def reschedule
+      while(failed = Resque.decode(Resque.redis.lpop(@queue_name))) do
+        Resque.enqueue failed["payload"]["class"].constantize, failed["payload"]["args"]
+        Resque.redis.decr("failure_counter")
+      end
+    end
     alias remove unimplemented
   end
 end

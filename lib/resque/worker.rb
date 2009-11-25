@@ -22,6 +22,8 @@ module Resque
 
     attr_writer :to_s
 
+    attr_reader :queues
+
     # Returns an array of all worker objects.
     def self.all
       redis.smembers(:workers).map { |id| find(id) }
@@ -82,7 +84,7 @@ module Resque
     #
     # You probably never need to call this.
     def validate_queues
-      if @queues.nil? || @queues.empty?
+      if queues.nil? || queues.empty?
         raise NoQueueError.new("Please give each worker at least one queue.")
       end
     end
@@ -130,7 +132,7 @@ module Resque
         else
           break if interval.to_i == 0
           log! "Sleeping for #{interval.to_i}"
-          $0 = "resque: Waiting for #{@queues.join(',')}"
+          $0 = "resque: Waiting for #{queues.join(',')}"
           sleep interval.to_i
         end
       end
@@ -371,7 +373,7 @@ module Resque
     # The string representation is the same as the id for this worker
     # instance. Can be used with `Worker.find`.
     def to_s
-      @to_s ||= "#{hostname}:#{Process.pid}:#{@queues.join(',')}"
+      @to_s ||= "#{hostname}:#{Process.pid}:#{queues.join(',')}"
     end
     alias_method :id, :to_s
 

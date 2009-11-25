@@ -6,7 +6,7 @@ $LOAD_PATH.unshift File.expand_path(File.dirname(__FILE__) + '/lib')
 require 'resque/server'
 
 use Rack::ShowExceptions
-
+require 'test-failures/fail'
 run Rack::URLMap.new  \
   "/" => Resque::Server.new
   # "/csp" => CSP::Aplication.new

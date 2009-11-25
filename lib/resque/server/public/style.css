@@ -232,3 +232,7 @@ body {
 #main form.clear-failed {
   float: right;
   margin-top: -10px; }
+
+.droptarget {
+  border-top: 5px solid red;
+}

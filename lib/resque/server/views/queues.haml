@@ -56,7 +56,7 @@
   %ol.queues
     - for queue in resque.queues
       %li
-        %img{:src=>u("sort.png")}
+        %img.sort{:src=>u("sort.png")}
         %img{:src=>u("stop.png")}
         %span.size
           = queue.size

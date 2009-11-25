@@ -36,7 +36,6 @@ module Resque
       def self.count
         # Now using the counter.
         Resque.redis[FailureCounter].to_i
-        # Resque.redis.llen(:failed).to_i
       end
       
       def self.all(error_queue_name, start = 0, count = 1)

@@ -82,15 +82,6 @@ module Resque
         @partial = false
       end
       
-      def poll
-        if @polling
-          text = "Last Updated: #{Time.now.strftime("%H:%M:%S")}"
-        else
-          text = "<a href='#{url(request.path_info)}.poll' rel='poll'>Live Poll</a>"
-        end
-        "<p class='poll'>#{text}</p>"
-      end
-      
     end
 
     def show(page, layout = true)
@@ -115,14 +106,6 @@ module Resque
         show page
       end
     end
-    
-    %w( overview workers ).each do |page|
-      get "/#{page}.poll" do
-        content_type "text/plain"
-        @polling = true
-        show(page.to_sym, false).gsub(/\s{1,}/, ' ')
-      end
-    end
 
     get "/failed" do
       if Resque::Failure.url
@@ -135,6 +118,11 @@ module Resque
     post "/failed/clear" do
       Resque::Failure.clear
       redirect url('failed')
+    end
+
+    post "/reschedule/:key" do
+      Resque::FailureQueue.new(params[:key]).reschedule
+      "OK"
     end
 
     get "/stats" do

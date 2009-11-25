@@ -11,6 +11,8 @@
         sup
           font-size: 8px
       
+      .tools
+        padding-top: 3px
       .count, .call
         display: inline-block !important
       .count
@@ -36,10 +38,16 @@
 
 :javascript
   jQuery(function($) {
-    console.log("SHIT")
     $('button.backtrace').click(function(event) {
       $(this).parents('li:first').find('ol.backtrace').toggle('fast');
-    });    
+    });
+    
+    $('button.reschedule').click(function() {
+      $.ajax({
+        url: $(this).attr('data-action'),
+        type: 'post'
+      });
+    });
   });
 
 %ul.failure_queues
@@ -47,12 +55,12 @@
     - if queue.any?
       %li[queue]
         .call 
-          #{queue.payload["class"]} 
+          #{queue.queue["queue_name"]} 
           %sup called with: #{queue.payload["args"]}
         .error #{queue.error}
         .tools
-          .count #{queue.size} failures
-          %button.reschedule Reschedule
+          .count #{queue.count} failures
+          %button.reschedule{'data-action'=>u("/reschedule/#{queue.name}")} Reschedule
           %button.backtrace Show Backtrace
         %ol.backtrace
           - queue.backtrace.each do |link, line|
