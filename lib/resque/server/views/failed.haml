@@ -1,22 +1,63 @@
-%h1 Failed
+%style
+  :sass
+    .failure_queues
+      > li
+        border-bottom: 1px dashed #999
+        padding: 2em 0
+      .call
+        display: inline-block
+        font-size: 24px
+        font-family: Monaco
+        sup
+          font-size: 8px
+      
+      .count, .call
+        display: inline-block !important
+      .count
+        background: #CE1212
+        border: 1px solid #CE1212
+        color: white
+        padding: 3px
+        margin:
+          top: 8px
+          right: 10px
+        -moz-border-radius: 5px
+      .error
+        color: #CE1212
+        font-size: 16px
+        font-family: Monaco
+        margin-top: 10px
+      ol.backtrace
+        padding-top: 1em
+        line-height: 1.5
+        font-family: Monaco
+        display: none
+  
+
+:javascript
+  jQuery(function($) {
+    console.log("SHIT")
+    $('button.backtrace').click(function(event) {
+      $(this).parents('li:first').find('ol.backtrace').toggle('fast');
+    });    
+  });
+
 %ul.failure_queues
-  - Resque::Failure.error_queues.each do |queue|
-    %li[queue]
-      - if queue.any?
-        %h2= queue.name
-        .count #{queue.size} failures
-        .message= queue.message
-        .class= queue.payload["class"]
-        .sample_arguments= queue.payload["args"]
-        %ol.stacktrace
-          - queue.stacktrace.each do |line|
-            %li
-              %a{:href => line}= line
-      - else
-        %p No failures for #{queue.name}
+  - Resque::Failure.failure_queues.each do |queue|
+    - if queue.any?
+      %li[queue]
+        .call 
+          #{queue.payload["class"]} 
+          %sup called with: #{queue.payload["args"]}
+        .error #{queue.error}
         .tools
+          .count #{queue.size} failures
           %button.reschedule Reschedule
-          %button.remove Remove
+          %button.backtrace Show Backtrace
+        %ol.backtrace
+          - queue.backtrace.each do |link, line|
+            %li
+              %a{:href => link}= line
       
 / - failed = Resque::Failure.all(start, 20)
 / %h1

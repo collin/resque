@@ -1,15 +1,15 @@
 module Resque
   module Failure
-    FailureCounter = :failure_counter
-    FailureQueues = :failure_queues
+    FailureCounter = "failure_counter"
+    FailureQueues = "resque:failure_queues"
     
     def self.failure_queues
-      QueueSet.new(FailureQueues, FailureQueue)
+      QueueSet.new("failure_queues", FailureQueue)
     end
     
     # A Failure backend that stores exceptions in Redis. This implementation stores an individual queue per
     # each class of error. This allows them to be managed with greater orthogonality.
-    class QueuePerError < Redis
+    class QueuePerError < Base
       def save
         data = {
           :failed_at => Time.now.to_s,
@@ -21,22 +21,16 @@ module Resque
           :queue     => queue
         }
         data = Resque.encode(data)
-        # Add to the correct failure list.
-        Resque.redis.rpush(failure_queue_name, data)
         # Add error queue to the error queue set.
-        Resque.redis.set_add(FailureQueues, failure_queue_name)
+        log Resque.redis.set_add(FailureQueues, per_queue_failures)
         # Add error queue to list of error queues for this queue
-        Resque.redis.set_add(per_queue_failures(queue), failure_queue_name)
+        log Resque.redis.rpush(per_queue_failures, data)
         # Increment the master failure counter.
-        Resque.redis.incr(FailureCounter)
+        log Resque.redis.incr(FailureCounter)
       end
       
-      def failure_queue_name
-        "failed:#{exception.class.name}"
-      end
-      
-      def per_queue_failures(queue)
-        "failed:per_queue:#{queue}"
+      def per_queue_failures
+        "failures:#{queue}:#{exception.class.name.underscore}".gsub '/', '_'
       end
       
       def self.count
@@ -53,6 +47,9 @@ module Resque
         raise "Unimplented"
       end
       
+      def self.url
+        nil
+      end
     end
   end
 end

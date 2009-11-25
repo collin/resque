@@ -7,19 +7,25 @@ rescue LoadError
 end
 
 require 'set'
-
-require 'resque/errors'
-require 'resque/queue_set'
-
-require 'resque/failure'
-require 'resque/failure/base'
-
-require 'resque/helpers'
-require 'resque/stat'
-require 'resque/job'
-require 'resque/worker'
+require 'pathname'
+require 'activesupport'
 
 module Resque
+  def self.root
+    @root ||= Pathname.new(__FILE__).dirname.expand_path
+  end
+
+  require Resque.root+'resque/errors'
+  require Resque.root+'resque/queue_set'
+
+  require Resque.root+'resque/failure'
+  require Resque.root+'resque/failure/base'
+
+  require Resque.root+'resque/helpers'
+  require Resque.root+'resque/stat'
+  require Resque.root+'resque/job'
+  require Resque.root+'resque/worker'
+
   include Helpers
   extend self
 

@@ -46,11 +46,11 @@ module Resque
         when 'none'
           []
         when 'list'
-          Resque.redis.llen(key)
+          Resque.redis.llen(key).to_i
         when 'set'
-          Resque.redis.scard(key)
+          Resque.redis.scard(key).to_i
         when 'string'
-          Resque.redis.get(key).length
+          Resque.redis.get(key).length.to_i
         end
       end
 

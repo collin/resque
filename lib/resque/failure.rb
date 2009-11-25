@@ -32,9 +32,9 @@ module Resque
     # back to `Resque::Failure::Redis`
     def self.backend
       return @backend if @backend
-      require 'resque/failure/queue_per_error'
-      require 'resque/failure/redis'
-      @backend = Failure::Redis
+      require Resque.root+'resque/failure/queue_per_error'
+      # require Resque.root+'resque/failure/redis'
+      @backend = Failure::QueuePerError
     end
 
     # Returns the int count of how many failures we have seen.
