@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby -KU
+require 'pathname'
+require 'optparse'
+root = Pathname.new(__FILE__).dirname.expand_path + ".."
+
+require 'rubygems'
+require root+'lib/resque'
+require root+'lib/resque/pool'
+
+options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: resque-pool [options]"
+   opts.on("-p", "--port PORT", Integer,
+           "Port to use for this resque pool client. Default is 2395") do |port|
+     options[:port] = port
+   end
+   
+   opts.on("-b", "--bind ADDRESS",
+           "Address to bind to for this resque pool client. Default is 0.0.0.0") do |bind_address|
+     options[:bind_address] = bind_address
+   end
+
+  
+end.parse!
+
+Resque::Pool.start(options)

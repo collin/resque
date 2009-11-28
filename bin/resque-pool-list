@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby -KU
+require 'pathname'
+require 'optparse'
+require 'pp'
+root = Pathname.new(__FILE__).dirname.expand_path + ".."
+
+require 'rubygems'
+require root+'lib/resque'
+require root+'lib/resque/pool'
+
+puts "Searching network for ResquePool clients (wait a moment)"
+list, resolveds = *Resque::Pool.list
+
+resolveds.each do |resolved|
+  puts
+  puts "fullname = #{resolved.fullname}"
+  puts "\tdomain = #{resolved.domain}"
+  puts "\tinterface = #{resolved.interface}"
+  puts "\tname = #{resolved.name}"
+  puts "\tport = #{resolved.port}"
+  puts "\ttarget = #{resolved.target}"
+  puts "\ttext_record = #{resolved.text_record.inspect}"
+  puts "\ttype = #{resolved.type}"
+  puts
+end 

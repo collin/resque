@@ -1,18 +1,22 @@
 require 'dnssd'
 require 'eventmachine'
+require 'uuid'
+
 Thread.abort_on_exception = true
 module Resque
   class Pool
     Version = "0.0.0".freeze
     Service = "_resquepool._tcp".freeze
-    Port = 2395
+    
+    attr_reader :config
     
     class PoolConnection < EventMachine::Connection
-      class PoolProtocolError < StandardError; end
-      
+      EndSession = "0".freeze
       AddWorker = "1".freeze
       RemoveWorker = "2".freeze
       SetOption = "3".freeze
+      PoolProtocolError = "PoolProtocolError\n".freeze
+      PoolOptions = [:logging, :verbose, :vverbose, :queues].freeze
       
       def initialize(pool)
         @pool = pool
@@ -20,6 +24,8 @@ module Resque
       
       def receive_data(data)
         case data.slice!(0,1)
+        when EndSession
+          close_connection
         when AddWorker
           @pool.add_worker
           send_data "OK\n"
@@ -28,11 +34,19 @@ module Resque
           send_data "OK\n"
         when SetOption
           key, value = *data.split(':')
-          (key and value) or raise PoolProtocolError
+          key.nil? and return error!
+          value.nil? and return error!
+          key = key.intern
+          PoolOptions.include?(key) or return error!
           @pool.set_option(key, value)
           send_data "OK\n"
-        else raise PoolProtocolError
+        else
+          error!
         end
+      end
+      
+      def error!
+        send_data(PoolProtocolError)
       end
       
       def unbind
@@ -52,19 +66,22 @@ module Resque
       end
     end
     
-    attr_reader :workers
-    
-    def self.start
-      pool = Pool.new
+    def self.start(options={})
       EventMachine.run do
-        EventMachine.start_server("127.0.0.1", 2395, PoolConnection, pool)
+        pool = Pool.new(options)
+        EventMachine.start_server(pool.config[:bind_address], pool.config[:port], PoolConnection, pool)
+        pool.register_bonjour
       end
     end
 
-    def initialize
+    def initialize(options={})
       @workers = []
-      @config = {:queues => ["*"]}
-      register_bonjour
+      @children = {}
+      @config = {
+        :queues => ["*"],
+        :port => 2395,
+        :bind_address => "0.0.0.0"
+        }.merge(options)
     end
     
     def add_worker
@@ -73,17 +90,19 @@ module Resque
         worker = Resque::Pool::PoolWorker.new(self)
         worker.verbose = @config[:logging] || @config[:verbose]
         worker.very_verbose = @config[:vverbose]
-        workers << worker
+        @workers << worker
       rescue Resque::NoQueueError
         abort "set QUEUE env var, e.g. $ QUEUE=critical,high rake resque:work"
       end
       
       child = fork do
+        Signal.trap("QUIT") { worker.shutdown }
         puts "*** Starting worker #{worker}"
-        worker.work(@config[:interval] || 5) # interval, will block  
+        worker.work(@config[:interval] || 5) # interval, will block
       end
       
       Process.detach(child)
+      @children[worker] = child
     end
     
     def queues
@@ -91,36 +110,41 @@ module Resque
     end
     
     def set_option(key, value)
-      @config[key].intern = Resque.decode(value.chomp)
+      @config[key] = Resque.decode(value.chomp)
+      pp @config
     end
     
     def remove_worker
-      worker = workers.shift
-      worker.shutdown
+      return unless(worker = @workers.shift)
+      Process.kill("QUIT", @children[worker])
     end
     
     def remove_all_workers
-      while(workers.any?) do 
+      while(@workers.any?) do 
         remove_worker
       end
     end
     
     def self.list
       list = {}
+      resolved = []
       service = DNSSD.browse(Service) do |reply|
         list[reply.name] = reply
+        # Let's lookup the details
+        resolver_service = DNSSD.resolve(reply.name, reply.type, reply.domain) do |reply|
+          resolved << reply
+        end
+        sleep(2)
+        resolver_service.stop
       end
       sleep 5
       service.stop
-      list
+      [list, resolved]
     end
     
     def register_bonjour
-      tr = DNSSD::TextRecord.new
-      tr["description"] = "A dynamic Pool of Resque workers"
-
-      DNSSD.register("ResquePool-#{`hostname`}:#{Port}", Service, 'local', 2395) do |rr|
-        # puts "Registered Resque Pool on port 2395. Starting service."
+      DNSSD.register("ResquePool #{UUID.generate}", Service, "local", @config[:port]) do |reply|
+        puts "#{reply.name}::#{reply.domain}::#{reply.type}"
       end
     end
   end
