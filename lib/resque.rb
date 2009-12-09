@@ -26,6 +26,12 @@ module Resque
   require Resque.root+'resque/job'
   require Resque.root+'resque/worker'
 
+  require Resque.root+'resque/pool'
+  require Resque.root+'resque/pool/connection'
+  require Resque.root+'resque/pool/worker'
+  require Resque.root+'resque/pool/peer'
+  require Resque.root+'resque/pool/controller'
+
   include Helpers
   extend self
 
@@ -52,7 +58,7 @@ module Resque
   end
 
   def to_s
-    "Resque Client connected to #{redis.server}"
+    "Resque Peer connected to #{redis.server}"
   end
 
 

@@ -43,7 +43,7 @@
           %code
             = data['payload']['class']
           %small
-            %a.queue.time{ :href => u &quot;/working/#{worker}&quot; }
+            %a.queue.time{ :href => u("/working/#{worker}") }
               = data['run_at']
         - else
           %span.waiting
@@ -73,7 +73,7 @@
           %img{ :title => state, :src => "#{u state}.png", :alt => state }
         - host, pid, queues = worker.to_s.split(':')
         %td.where
-          %a{ :href => u &quot;workers/#{worker}&quot; }
+          %a{ :href => u("workers/#{worker}") }
             = host
             \:
             = pid
@@ -85,7 +85,7 @@
             %code
               = data['payload']['class']
             %small
-              %a.queue.time{ :href => u &quot;/working/#{worker}&quot; }
+              %a.queue.time{ :href => u("/working/#{worker}") }
                 = data['run_at']
           - else
             %span.waiting

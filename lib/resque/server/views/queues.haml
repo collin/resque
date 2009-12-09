@@ -33,13 +33,38 @@
 - else
   %style
     :sass
+      .failed
+        clear: both
       .queues
         list-style: none
         margin: 0
         padding: 0
+        .buttons
+          :float left
+        .meta, .buttons
+          display: inline
+        .meta *
+          margin-left: 20px
+        .count
+          display: inline-block
+          background: #278601
+          border: 1px solid #278601
+          color: white
+          padding: 3px
+          margin:
+            top: 8px
+            right: 10px
+          -moz-border-radius: 5px
         li
+          border-bottom: 1px dashed #999
+          clear: both
+          padding: 10px
+          h2
+            margin: 0 !important
           img
             opacity: 0.05
+          &:last-child
+            border: none
           &:hover
             background: #fafafa
             img
@@ -51,17 +76,37 @@
     Queues
   %p.intro
     The list below contains all the registered queues with the number of jobs currently in the queue. Select a queue from above to view all jobs currently pending on the queue.
-  %h2 Concurrency Level:
-  %input{:type=>:text, :value => '0'}
   %ol.queues
+    :jabs
+      :ready
+        $.queues .delete
+          :click
+            // TODO FIX THIS ISSUE: http://gist.github.com/collin/jabs/issues#issue/7
+            var action = @action
+            fun success_handler
+              .closest 'li'
+                .remove
+                
+            .siblings '.size'
+              if parseInt(@innerHTML, 10) != 0
+                alert("WILL NOT DELETE A QUEUE WITH JOBS IN IT. USE COMMAND LINE IF YOU REALLY WANT TO")
+              else if confirm("Really DELETE this queue?")
+                .ajax
+                  type: 'delete'
+                  url: action
+                  success: success_handler
+                  
     - for queue in resque.queues
       %li
-        %img.sort{:src=>u("sort.png")}
-        %img{:src=>u("stop.png")}
-        %span.size
-          = queue.size
-        %a.queue{ :href => url("queues/#{queue}") }
-          = queue.name
+        .buttons
+          %img.delete(src="delete.png" action="queues/#{queue}")
+          %img.sort{:src=>u("sort.png")}
+          %img{:src=>u("stop.png")}
+          %img{:src=>u("start.png")}
+        .meta
+          %h2
+            %a.queue{ :href => url("queues/#{queue}") }= queue.name.titleize
+          .count #{queue.size.humanize} scheduled
         - if queue.failure_queues.any?
           %ul.failures
             - queue.failure_queues.each do |failure_queue|

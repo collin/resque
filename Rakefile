@@ -41,6 +41,7 @@ begin
     gemspec.add_dependency "redis"
     gemspec.add_dependency "redis-namespace"
     gemspec.add_development_dependency "jeweler"
+    gemspec.files = Dir["**/*"]
   end
 rescue LoadError
   puts "Jeweler not available. Install it with: "

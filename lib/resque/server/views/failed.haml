@@ -36,19 +36,26 @@
         display: none
   
 
-:javascript
-  jQuery(function($) {
-    $('button.backtrace').click(function(event) {
-      $(this).parents('li:first').find('ol.backtrace').toggle('fast');
-    });
-    
-    $('button.reschedule').click(function() {
-      $.ajax({
-        url: $(this).attr('data-action'),
-        type: 'post'
-      });
-    });
-  });
+:jabs
+  jQuery.fn.ajax = jQuery.ajax
+  :ready
+    $button.backtrace
+      :click
+        .parents 'li:first'
+          &ol.backtrace
+            .toggle 'fast'
+:jabs
+  :ready
+    $button
+      :click
+        var action = @action
+        fun handle_success
+          .closest 'li'
+            .remove
+        .ajax
+          url: action
+          type: 'post'
+          success: handle_success
 
 %ul.failure_queues
   - Resque::Failure.failure_queues.each do |queue|
@@ -60,7 +67,7 @@
         .error #{queue.error}
         .tools
           .count #{queue.count} failures
-          %button.reschedule{'data-action'=>u("/reschedule/#{queue.name}")} Reschedule
+          %button.reschedule{'action'=>u("/reschedule/#{queue.name}")} Reschedule
           %button.backtrace Show Backtrace
         %ol.backtrace
           - queue.backtrace.each do |link, line|

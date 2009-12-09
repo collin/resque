@@ -9,8 +9,15 @@ module Resque
   end
   
   class Queue
+    class WontDeleteNonEmptyQueue < StandardError; end
+    
     def initialize(queue_name)
       @queue_name = queue_name
+    end
+    
+    def delete
+      raise WontDeleteNonEmptyQueue if any?
+      Resque.remove_queue(@queue_name)
     end
     
     def failure_queues
@@ -69,6 +76,7 @@ module Resque
       while(failed = Resque.decode(Resque.redis.lpop(@queue_name))) do
         Resque.enqueue failed["payload"]["class"].constantize, failed["payload"]["args"]
         Resque.redis.decr("failure_counter")
+        Resque.redis.decr("stat:failed")
       end
     end
     alias remove unimplemented

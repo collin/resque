@@ -1,15 +1,58 @@
 require 'sinatra/base'
+require 'sinatra/async'
+
 require 'haml'
+require 'sass'
+require 'jabs'
+require 'compass'
+
 require 'resque'
 require 'resque/version'
 
+module Haml
+  module Filters
+    module Jabs
+      include Haml::Filters::Base
+      # @see Base#render
+      def render(text)
+        %{
+        <script>
+        //<![CDATA[
+          #{::Jabs::Engine.new(text.rstrip).render}
+        //]]>
+        </script>
+        }
+      end
+    end
+  end
+end
+
+class Numeric
+  def humanize
+    to_s.gsub(/(\d)(?=(\d\d\d)+(?!\d))/, "\\1,")
+  end
+end
+
 module Resque
   class Server < Sinatra::Base
+    register Sinatra::Async
+    
     dir = File.dirname(File.expand_path(__FILE__))
 
     set :views,  "#{dir}/server/views"
+    set :sass,   "#{dir}/server/sass"
     set :public, "#{dir}/server/public"
     set :static, true
+
+    configure do
+       Compass.configuration do |config|
+          config.project_path = File.dirname(__FILE__)
+          config.sass_dir = 'views'
+        end
+
+        set :haml, { :format => :html5 }
+        set :sass, Compass.sass_engine_options
+      end
 
     helpers do
       include Rack::Utils
@@ -97,13 +140,27 @@ module Resque
       redirect url(:overview)
     end
 
-    %w( overview queues working workers key ).each do |page|
+    %w( overview queues working workers pool key ).each do |page|
       get "/#{page}" do
         show page
       end
 
       get "/#{page}/:id" do
         show page
+      end
+    end
+    
+    delete "/queues/:id" do |id|
+      queue = Resque::Queue.new(id)
+      return "WontDeleteNonEmptyQueu" if queue.any?
+      queue.delete
+      "OK"
+    end
+
+    aget "/pool_table" do
+      Resque::Pool.list do |list, peers|
+        @list, @peers = list, peers
+        body(haml :pool_table, :layout => false)
       end
     end
 
@@ -122,6 +179,13 @@ module Resque
 
     post "/reschedule/:key" do
       Resque::FailureQueue.new(params[:key]).reschedule
+      "OK"
+    end
+
+    post "/concurrency/:level" do |level|
+      EventMachine.next_tick do
+        Resque::Pool.set_concurrency_level(level)
+      end
       "OK"
     end
 
@@ -153,6 +217,11 @@ module Resque
 
       content_type 'text/plain'
       stats.join "\n"
+    end
+
+    get '/screen.css' do
+      content_type 'text/css', :charset => 'utf-8'
+      sass :screen
     end
 
     def resque

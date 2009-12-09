@@ -8,18 +8,23 @@ require 'rubygems'
 require root+'lib/resque'
 require root+'lib/resque/pool'
 
-puts "Searching network for ResquePool clients (wait a moment)"
-list, resolveds = *Resque::Pool.list
+puts "Searching network for ResquePool peers (wait a moment)"
 
-resolveds.each do |resolved|
-  puts
-  puts "fullname = #{resolved.fullname}"
-  puts "\tdomain = #{resolved.domain}"
-  puts "\tinterface = #{resolved.interface}"
-  puts "\tname = #{resolved.name}"
-  puts "\tport = #{resolved.port}"
-  puts "\ttarget = #{resolved.target}"
-  puts "\ttext_record = #{resolved.text_record.inspect}"
-  puts "\ttype = #{resolved.type}"
-  puts
-end 
+EventMachine.run do
+  Resque::Pool.list do |list, peers|
+    peers.each do |peer|
+      pp peer.ip
+      puts
+      puts "fullname = #{peer.fullname}"
+      puts "\tdomain = #{peer.domain}"
+      puts "\tinterface = #{peer.interface}"
+      puts "\tname = #{peer.name}"
+      puts "\tport = #{peer.port}"
+      puts "\ttarget = #{peer.target}"
+      puts "\ttext_record = #{peer.text_record.inspect}"
+      puts "\ttype = #{peer.type}"
+      puts
+    end   
+    EventMachine.stop
+  end
+end
