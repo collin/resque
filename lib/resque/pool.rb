@@ -4,6 +4,14 @@ require 'uuid'
 
 Thread.abort_on_exception = true
 module Resque
+  def self.concurrency_level=(level)
+    redis.set('stat:concurrency_level', level)
+  end
+  
+  def self.concurrency_level
+    redis.get('stat:concurrency_level').to_i
+  end
+  
   module Pool
     Version = "0.0.0".freeze
     Service = "_resquepool._tcp".freeze
@@ -30,6 +38,7 @@ module Resque
     end
     
     def self.set_concurrency_level(level)
+      Resque.concurrency_level = level  
       list do |list, peers|
         peers.each_with_index do |peer, index|
           EventMachine.connect(peer.target, peer.port, Resque::Pool::Controller, level)

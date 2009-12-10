@@ -96,7 +96,7 @@
                   url: action
                   success: success_handler
                   
-    - for queue in resque.queues
+    - for queue in Resque.queues
       %li
         .buttons
           %img.delete(src="delete.png" action="queues/#{queue}")

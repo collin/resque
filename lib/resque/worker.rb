@@ -76,7 +76,7 @@ module Resque
     # removed without needing to restart workers using this method.
     def initialize(*queues)
       @queues = queues
-      validate_queues
+      # validate_queues
     end
 
     # A worker must be given a queue, otherwise it won't know what to

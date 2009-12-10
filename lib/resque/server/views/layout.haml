@@ -4,12 +4,23 @@
     %title
       Resque.
     %link{ :href => "/screen.css", :rel => "stylesheet", :type => "text/css", :media => "screen" }
+    %script{ :src => "/jsio/jsio.js" }
     %script{ :src => url("jquery-1.4a1.js") }
     %script{ :src => url("jquery.relatize_date.js") }
     %script{ :src => url("jquery.event.drag-1.5.js") }
     %script{ :src => url("jquery.event.drop-1.2.js") }
     %script{ :src => url("ranger.js") }
     %script{ :src => url("sort_queues.js") }
+    :javascript
+        jsio("from jsio.csp.client import CometSession");
+        jQuery(function($) {
+              session = new CometSession();
+              session.onread = function(data) { 
+                console.log(data)
+              }
+              session.onconnect = function() {}
+              session.connect("http://localhost:9292/csp");              
+        });
 
   %body
     .header

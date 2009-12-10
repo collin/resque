@@ -6,11 +6,11 @@ module Resque
       def initialize(peer)
         @peer = peer
       end
-
+      
       def queues
         peer.queues
       end
-
+      
     end
   end
 end

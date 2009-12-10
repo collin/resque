@@ -67,7 +67,7 @@
       
   %h2 Concurrency Level:
   .controls
-    %input#concurrency{:type => :text, :value => Resque::Worker.all.count/@peers.size}
+    %input#concurrency{:type => :text, :value => Resque.concurrency_level}
     .buttons
       %button.up +
       %button.down -

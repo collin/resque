@@ -2,7 +2,7 @@ module Resque
   class QueueSet < Set
     def initialize(key, queue_class=Queue)
       super()
-      Resque.redis.set_members("resque:#{key}").each do |queue_name|
+      Resque.redis.smembers("#{key}").each do |queue_name|
         add queue_class.new(queue_name)
       end
     end
@@ -74,7 +74,7 @@ module Resque
     
     def reschedule
       while(failed = Resque.decode(Resque.redis.lpop(@queue_name))) do
-        Resque.enqueue failed["payload"]["class"].constantize, failed["payload"]["args"]
+        Resque::Job.create failed["queue"], failed["payload"]["class"], *failed["payload"]["args"]
         Resque.redis.decr("failure_counter")
         Resque.redis.decr("stat:failed")
       end

@@ -48,6 +48,7 @@ module Resque
       end
     
       def queues
+        return ["extract_relation_relations"]
         @config[:queues]
       end
     
@@ -58,7 +59,7 @@ module Resque
     
       def remove_worker
         return unless(worker = @workers.shift)
-        puts puts "*** Stopping worker #{worker}"
+        puts "*** Stopping worker #{worker}"
         Process.kill("QUIT", @children[worker])
       end
     
@@ -70,7 +71,6 @@ module Resque
       
       def register_bonjour
         DNSSD.register("ResquePool #{UUID.generate}", Service, "local", @config[:port]) do |reply|
-          puts "#{reply.name}::#{reply.domain}::#{reply.type}"
         end
       end
     end

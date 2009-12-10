@@ -1,7 +1,7 @@
 - if params[:id] && (worker = Resque::Worker.find(params[:id])) && worker.job
   %h1
     = worker
-    's job
+    sF job
   %table
     %tr
       %th
@@ -65,7 +65,7 @@
       - job = worker.job
       %tr
         %td.icon
-          %img{ :title => state, :src => "#{u state = worker.state}.png", :alt => state }
+          %img{ :title => worker.state, :src => u("#{worker.state}.png"), :alt => worker.state }
         - host, pid, queues = worker.to_s.split(':')
         %td.where
           %a{ :href => url("/workers/#{worker}") }

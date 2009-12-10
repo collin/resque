@@ -15,10 +15,6 @@ module Resque
         @peer = peer
       end
       
-      def post_init
-        puts "CONNECTION MADE"
-      end
-      
       def receive_data(data)
         puts "RECV: #{data}"
         case data.slice!(0,1)
