@@ -183,9 +183,8 @@ module Resque
     end
 
     post "/concurrency/:level" do |level|
-      EventMachine.next_tick do
-        Resque::Pool.set_concurrency_level(level)
-      end
+      throw :halt, [404, "Not Found"] unless level[/\d*/]
+      Resque.concurrency_level = level
       "OK"
     end
 

@@ -12,8 +12,7 @@ OptionParser.new do |opts|
   opts.banner = "Usage: resque-pool [options]"
   opts.on("-l", "--load PATH",
          "Path to a Ruby file to load into the worker runtime.") do |path|
-    options[:path] = path
-    require path
+    options[:load] = path
   end
 
   opts.on("-p", "--port PORT", Integer,
@@ -27,7 +26,7 @@ OptionParser.new do |opts|
   end   
 end.parse!
 
-puts %{Missing option: --load PATH} if options[:path].nil?
-exit(1) if options[:path].nil?
+puts %{Missing option: --load PATH} if options[:load].nil?
+exit(1) if options[:load].nil?
 
 Resque::Pool.start(options)
