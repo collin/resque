@@ -2,7 +2,7 @@ module Resque
   module Pool
     class Peer
       
-      attr_reader :config
+      attr_reader :config, :workers
       
       def initialize(options={})
         @workers = []
@@ -14,15 +14,15 @@ module Resque
           }.merge(options)
       end
     
-      def set_concurrency_level(level)
-        if level > concurrency_level
-          (level - concurrency_level).times { add_worker }
+      def set_concurrency_level
+        if workers_count < Resque.concurrency_level
+          (Resque.concurrency_level - workers_count).times { add_worker }
         else
-          (concurrency_level - level).times { remove_worker }
+          (workers_count - Resque.concurrency_level).times { remove_worker }
         end
       end
     
-      def concurrency_level
+      def workers_count
         @workers.size
       end
     
@@ -30,6 +30,7 @@ module Resque
         worker = nil
         begin
           worker = Resque::Pool::Worker.new(self)
+          
           worker.verbose = @config[:logging] || @config[:verbose]
           worker.very_verbose = @config[:vverbose]
           @workers << worker
@@ -38,6 +39,7 @@ module Resque
         end
       
         child = fork do
+          require @config[:load]
           Signal.trap("QUIT") { worker.shutdown }
           puts "*** Starting worker #{worker}"
           worker.work(@config[:interval] || 5) # interval, will block
@@ -69,10 +71,6 @@ module Resque
         end
       end
       
-      def register_bonjour
-        DNSSD.register("ResquePool #{UUID.generate}", Service, "local", @config[:port]) do |reply|
-        end
-      end
     end
     
   end

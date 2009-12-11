@@ -27,10 +27,8 @@ module Resque
   require Resque.root+'resque/worker'
 
   require Resque.root+'resque/pool'
-  require Resque.root+'resque/pool/connection'
   require Resque.root+'resque/pool/worker'
   require Resque.root+'resque/pool/peer'
-  require Resque.root+'resque/pool/controller'
 
   include Helpers
   extend self
@@ -48,7 +46,12 @@ module Resque
       raise "I don't know what to do with #{server.inspect}"
     end
   end
-
+  
+  # Force reconnection to Redis
+  def force_reconnect_to_redis
+    @redis = nil
+  end
+  
   # Returns the current Redis connection. If none has been created, will
   # create a new one.
   def redis

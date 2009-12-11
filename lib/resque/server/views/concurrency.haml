@@ -1,0 +1,73 @@
+.concurrency
+  %style
+    :sass
+      .concurrency
+        .controls
+          position: relative
+          display: inline-block
+          margin: 0
+          padding: 0
+        h2
+          display: inline
+        [type=text]
+          width: 40px
+          margin: 0px
+          padding: 0px
+            :top 2px
+          text-align: right
+          padding-left: 24px
+          height: 33px
+          font-size: 24px
+          font-weight: bold
+        .buttons
+          top: 0px
+          display: inline-block
+          position: absolute
+        button
+          display: block
+          width: 20px
+          height: 18px
+          margin: 2px
+            left: 3px
+          text-align: center
+          text-indent: -4px
+
+  :jabs
+    jQuery.fn.ajax = jQuery.ajax;
+    def whitelist expr
+      :keyup
+        @value = parseInt(@value, 10) || 0
+        .change
+    :ready
+      $ .concurrency
+        &.up
+          :click
+            $ #concurrency
+              @value = parseInt(@value, 10) + 1
+              .change
+    :ready
+      $ .concurrency
+        &.down
+          :click
+            $ #concurrency
+              if @value > 0
+                @value = parseInt(@value, 10) - 1
+                .change
+    :ready
+      $ #concurrency
+        .whitelist /\d+/
+        :change
+          unless @value
+            @value = 0
+          var value = @value
+          .ajax
+            type: 'post'
+            url: '/concurrency/'+value
+          
+      
+  %h2 Concurrency Level:
+  .controls
+    %input#concurrency{:type => :text, :value => Resque.concurrency_level}
+    .buttons
+      %button.up +
+      %button.down -

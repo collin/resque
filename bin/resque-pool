@@ -13,8 +13,8 @@ OptionParser.new do |opts|
   opts.on("-l", "--load PATH",
          "Path to a Ruby file to load into the worker runtime.") do |path|
     # Clip off any file extensions
-    options[:path] = path.gsub /.*$/, ""
-    require path
+    options[:load] = path.gsub /.*$/, ""
+    options[:load] = path
   end
 
   opts.on("-p", "--port PORT", Integer,
@@ -28,9 +28,8 @@ OptionParser.new do |opts|
   end   
 end.parse!
 
-ARGV.clear
-
-puts %{Missing option: --load PATH} if options[:path].nil?
-exit(1) if options[:path].nil?
+ARGV.clear # some options interfere with other libraries
+puts %{Missing option: --load PATH} if options[:load].nil?
+exit(1) if options[:load].nil?
 
 Resque::Pool.start(options)
