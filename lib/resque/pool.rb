@@ -14,6 +14,7 @@ module Resque
   
   module Pool
     def self.start(options={})
+      Resque.redis = options[:resque_uri]
       peer = Peer.new(options)
       loop do 
         peer.set_concurrency_level
