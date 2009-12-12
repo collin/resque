@@ -7,10 +7,6 @@ module Resque
         @peer = peer
       end
       
-      def queues
-        peer.queues
-      end
-      
     end
   end
 end

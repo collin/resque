@@ -17,7 +17,7 @@ OptionParser.new do |opts|
     options[:load] = path
   end
 
-  opts.on("-r", "--resque HOST:PORT",
+  opts.on("-r", "--resque_uri HOST:PORT",
           "Host and port to connect to resque with.") do |uri|
      options[:resque_uri] = uri       
   end
@@ -26,19 +26,26 @@ OptionParser.new do |opts|
          "Port to use for this resque pool client. Default is 2395") do |port|
     options[:port] = port
   end
- 
+
   opts.on("-b", "--bind ADDRESS",
-         "Address to bind to for this resque pool client. Default is 0.0.0.0") do |bind_address|
-    options[:bind_address] = bind_address
-  end   
+        "Address to bind to for this resque pool client. Default is 0.0.0.0") do |bind_address|
+   options[:bind_address] = bind_address
+  end
+
+  opts.on("-q", "--queue_file PATH",
+        "Path to JSON encoded file of queue names in priority order") do |queue_file|
+   options[:queue_file] = Yajl.load open(queue_file).read
+  end
 end.parse!
 
 ARGV.clear # some options interfere with other libraries
 puts %{Missing option: --load PATH} if options[:load].nil?
 exit(1) if options[:load].nil?
 
-puts %{Missing option: --resque HOST:PORT} if options[:resque_uri].nil?
+puts %{Missing option: --resque_uri HOST:PORT} if options[:resque_uri].nil?
 exit(1) if options[:resque_uri].nil?
 
+puts %{Missing option: --queue_file HOST:PORT} if options[:queue_file].nil?
+exit(1) if options[:queue_file].nil?
 
 Resque::Pool.start(options)
