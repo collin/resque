@@ -29,7 +29,7 @@ module Resque
       def add_worker
         worker = nil
         begin
-          worker = Resque::Pool::Worker.new(self)
+          worker = Resque::Worker.new(@config[:queues])
           
           worker.verbose = @config[:logging] || @config[:verbose]
           worker.very_verbose = @config[:vverbose]

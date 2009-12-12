@@ -34,7 +34,7 @@ OptionParser.new do |opts|
 
   opts.on("-q", "--queue_file PATH",
         "Path to JSON encoded file of queue names in priority order") do |queue_file|
-   options[:queue_file] = Yajl.load open(queue_file).read
+   options[:queues] = Yajl.load open(queue_file).read
   end
 end.parse!
 
@@ -45,7 +45,7 @@ exit(1) if options[:load].nil?
 puts %{Missing option: --resque_uri HOST:PORT} if options[:resque_uri].nil?
 exit(1) if options[:resque_uri].nil?
 
-puts %{Missing option: --queue_file PATH} if options[:queue_file].nil?
-exit(1) if options[:queue_file].nil?
+puts %{Missing option: --queue_file PATH} if options[:queues].nil?
+exit(1) if options[:queues].nil?
 
 Resque::Pool.start(options)

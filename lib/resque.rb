@@ -27,7 +27,6 @@ module Resque
   require Resque.root+'resque/worker'
 
   require Resque.root+'resque/pool'
-  require Resque.root+'resque/pool/worker'
   require Resque.root+'resque/pool/peer'
 
   include Helpers
