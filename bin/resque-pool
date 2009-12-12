@@ -45,7 +45,7 @@ exit(1) if options[:load].nil?
 puts %{Missing option: --resque_uri HOST:PORT} if options[:resque_uri].nil?
 exit(1) if options[:resque_uri].nil?
 
-puts %{Missing option: --queue_file HOST:PORT} if options[:queue_file].nil?
+puts %{Missing option: --queue_file PATH} if options[:queue_file].nil?
 exit(1) if options[:queue_file].nil?
 
 Resque::Pool.start(options)
