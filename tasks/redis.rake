@@ -9,7 +9,12 @@ class RedisRunner
   end
 
   def self.redisconfdir
-    '/etc/redis.conf'
+    server_dir = File.dirname(`which redis-server`)
+    conf_file = "#{server_dir}/../etc/redis.conf"
+    unless File.exists? conf_file
+      conf_file = "#{server_dir}/../../etc/redis.conf"
+    end
+    conf_file
   end
 
   def self.dtach_socket
@@ -24,7 +29,8 @@ class RedisRunner
   def self.start
     puts 'Detach with Ctrl+\  Re-attach with rake redis:attach'
     sleep 1
-    exec "dtach -A #{dtach_socket} redis-server #{redisconfdir}"
+    command = "dtach -A #{dtach_socket} redis-server #{redisconfdir}"
+    sh command
   end
 
   def self.attach
@@ -65,17 +71,20 @@ namespace :redis do
     RedisRunner.attach
   end
 
-  desc 'Install the lastest verison of Redis from Github (requires git, duh)'
+  desc 'Install the latest verison of Redis from Github (requires git, duh)'
   task :install => [:about, :download, :make] do
+    ENV['PREFIX'] and bin_dir = "#{ENV['PREFIX']}/bin" or bin_dir = '/usr/bin'
     %w(redis-benchmark redis-cli redis-server).each do |bin|
-      sh "sudo cp /tmp/redis/#{bin} /usr/bin/"
+      sh "cp /tmp/redis/#{bin} #{bin_dir}"
     end
 
-    puts "Installed redis-benchmark, redis-cli and redis-server to /usr/bin/"
+    puts "Installed redis-benchmark, redis-cli and redis-server to #{bin_dir}"
 
-    unless File.exists?('/etc/redis.conf')
-      sh 'sudo cp /tmp/redis/redis.conf /etc/'
-      puts "Installed redis.conf to /etc/ \n You should look at this file!"
+    ENV['PREFIX'] and conf_dir = "#{ENV['PREFIX']}/etc" or conf_dir = '/etc'
+    unless File.exists?("#{conf_dir}/redis.conf")
+      sh "mkdir #{conf_dir}" unless File.exists?("#{conf_dir}")
+      sh "cp /tmp/redis/redis.conf #{conf_dir}/redis.conf"
+      puts "Installed redis.conf to #{conf_dir} \n You should look at this file!"
     end
   end
 
@@ -115,11 +124,12 @@ namespace :dtach do
       system('tar xzf dtach-0.8.tar.gz')
     end
 
+    ENV['PREFIX'] and bin_dir = "#{ENV['PREFIX']}/bin" or bin_dir = "/usr/bin"
     Dir.chdir('/tmp/dtach-0.8/')
     sh 'cd /tmp/dtach-0.8/ && ./configure && make'
-    sh 'sudo cp /tmp/dtach-0.8/dtach /usr/bin/'
+    sh "cp /tmp/dtach-0.8/dtach #{bin_dir}"
 
-    puts 'Dtach successfully installed to /usr/bin.'
+    puts "Dtach successfully installed to #{bin_dir}"
   end
 end
 

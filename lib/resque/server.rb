@@ -84,6 +84,10 @@ module Resque
         "<li #{class_if_current(dname)}><a href='#{url dname}'>#{name}</a></li>"
       end
 
+      def tabs
+        Resque::Server.tabs
+      end
+
       def redis_get_size(key)
         case Resque.redis.type(key)
         when 'none'
@@ -136,7 +140,7 @@ module Resque
     end
 
     # to make things easier on ourselves
-    get "/" do
+    get "/?" do
       redirect url(:overview)
     end
 
@@ -225,6 +229,10 @@ module Resque
 
     def resque
       Resque
+    end
+
+    def self.tabs
+      @tabs ||= ["Overview", "Working", "Failed", "Queues", "Workers", "Stats"]
     end
   end
 end

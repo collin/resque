@@ -94,14 +94,14 @@ module Resque
     #
     # The following events occur during a worker's life cycle:
     #
-    # 1. startup: Signals are registered, dead workers are pruned,
-    #             and this worker is registered.
-    # 2. work loop: Jobs are pulled from a queue and processed
-    # 3. teardown: This worker is unregistered.
+    # 1. Startup:   Signals are registered, dead workers are pruned,
+    #               and this worker is registered.
+    # 2. Work loop: Jobs are pulled from a queue and processed.
+    # 3. Teardown:  This worker is unregistered.
     #
-    # Can be passed an integered representing the polling
-    # frequency. The default is 5 seconds, but for a semi-active site
-    # you may want to use a smaller value.
+    # Can be passed an integer representing the polling frequency.
+    # The default is 5 seconds, but for a semi-active site you may
+    # want to use a smaller value.
     #
     # Also accepts a block which will be passed the job as soon as it
     # has completed processing. Useful for testing.
@@ -112,18 +112,15 @@ module Resque
       loop do
         break if @shutdown
 
-        if job = reserve
+        if not @paused and job = reserve
           log "got: #{job.inspect}"
 
           if @child = fork
-            procline = "resque: Forked #{@child} at #{Time.now.to_i}"
-            $0 = procline
-            log! procline
+            rand # Reseeding
+            procline "Forked #{@child} at #{Time.now.to_i}"
             Process.wait
           else
-            procline = "resque: Processing #{job.queue} since #{Time.now.to_i}"
-            $0 = procline
-            log! procline
+            procline "Processing #{job.queue} since #{Time.now.to_i}"
             process(job, &block)
             exit! unless @cant_fork
           end
@@ -190,7 +187,12 @@ module Resque
       return if @cant_fork
 
       begin
-        Kernel.fork
+        # IronRuby doesn't support `Kernel.fork` yet
+        if Kernel.respond_to?(:fork)
+          Kernel.fork
+        else
+          raise NotImplementedError
+        end
       rescue NotImplementedError
         @cant_fork = true
         nil
@@ -219,13 +221,21 @@ module Resque
     #  INT: Shutdown immediately, stop processing jobs.
     # QUIT: Shutdown after the current job has finished processing.
     # USR1: Kill the forked child immediately, continue processing jobs.
+    # USR2: Don't process any new jobs
+    # CONT: Start processing jobs again after a USR2
     def register_signal_handlers
       trap('TERM') { shutdown!  }
       trap('INT')  { shutdown!  }
-      unless defined? JRUBY_VERSION
+
+      begin
         trap('QUIT') { shutdown   }
         trap('USR1') { kill_child }
+        trap('USR2') { pause_processing }
+        trap('CONT') { unpause_processing }
+      rescue ArgumentError
+        warn "Signals QUIT, USR1, USR2, and/or CONT not supported."
       end
+
       log! "Registered signals"
     end
 
@@ -247,8 +257,26 @@ module Resque
     def kill_child
       if @child
         log! "Killing child at #{@child}"
-        Process.kill("KILL", @child) rescue nil
+        if system("ps -o pid,state -p #{@child}")
+          Process.kill("KILL", @child) rescue nil
+        else
+          log! "Child #{@child} not found, restarting."
+          shutdown
+        end
       end
+    end
+
+    # Stop processing jobs after the current one has completed (if we're
+    # currently running one).
+    def pause_processing
+      log "USR2 received; pausing job processing"
+      @paused = true
+    end
+
+    # Start processing jobs again after a pause
+    def unpause_processing
+      log "CONT received; resuming job processing"
+      @paused = false
     end
 
     # Looks for any workers which should be running on this server
@@ -256,16 +284,18 @@ module Resque
     #
     # This is a form of garbage collection. If a server is killed by a
     # hard shutdown, power failure, or something else beyond our
-    # control, the Resque workers will not die gracefully and therefor
+    # control, the Resque workers will not die gracefully and therefore
     # will leave stale state information in Redis.
     #
     # By checking the current Redis state against the actual
     # environment, we can determine if Redis is old and clean it up a bit.
     def prune_dead_workers
-      Worker.all.each do |worker|
+      all_workers = Worker.all
+      known_workers = worker_pids unless all_workers.empty?
+      all_workers.each do |worker|
         host, pid, queues = worker.id.split(':')
         next unless host == hostname
-        next if worker_pids.include?(pid)
+        next if known_workers.include?(pid)
         log! "Pruning dead worker: #{worker}"
         worker.unregister_worker
       end
@@ -280,8 +310,6 @@ module Resque
 
     # Unregisters ourself as a worker. Useful when shutting down.
     def unregister_worker
-      done_working
-
       redis.srem(:workers, self)
       redis.del("worker:#{self}:started")
 
@@ -388,6 +416,14 @@ module Resque
       `ps -A -o pid,command | grep [r]esque`.split("\n").map do |line|
         line.split(' ')[0]
       end
+    end
+
+    # Given a string, sets the procline ($0) and logs.
+    # Procline is always in the format of:
+    #   resque-VERSION: STRING
+    def procline(string)
+      $0 = "resque-#{Resque::Version}: #{string}"
+      log! $0
     end
 
     # Log a message to STDOUT if we are verbose or very_verbose.

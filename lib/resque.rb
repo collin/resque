@@ -6,9 +6,13 @@ rescue LoadError
   require 'json'
 end
 
+
 require 'set'
 require 'pathname'
 require 'activesupport'
+require 'resque/version'
+
+require 'resque/errors'
 
 module Resque
   def self.root
@@ -32,12 +36,16 @@ module Resque
   include Helpers
   extend self
 
-  # Accepts a 'hostname:port' string or a Redis server.
+  # Accepts:
+  #   1. A 'hostname:port' string
+  #   2. A 'hostname:port:db' string (to select the Redis db)
+  #   3. An instance of `Redis`
   def redis=(server)
     case server
     when String
-      host, port = server.split(':')
-      redis = Redis.new(:host => host, :port => port, :thread_safe => true)
+      host, port, db = server.split(':')
+      redis = Redis.new(:host => host, :port => port,
+        :thread_safe => true, :db => db)
       @redis = Redis::Namespace.new(:resque, :redis => redis)
     when Redis
       @redis = Redis::Namespace.new(:resque, :redis => server)
@@ -114,8 +122,6 @@ module Resque
 
   # Given a queue name, completely deletes the queue.
   def remove_queue(queue)
-    @watched_queues ||= {}
-    @watched_queues.delete(queue.to_s)
     redis.srem(:queues, queue.to_s)
     redis.del("queue:#{queue}")
   end
@@ -123,8 +129,6 @@ module Resque
   # Used internally to keep track of which queues we've created.
   # Don't call this directly.
   def watch_queue(queue)
-    @watched_queues ||= {}
-    return if @watched_queues[queue]
     redis.sadd(:queues, queue.to_s)
   end
 
@@ -176,6 +180,12 @@ module Resque
     Worker.working
   end
 
+  # A shortcut to unregister_worker
+  # useful for command line tool
+  def remove_worker(worker_id)
+    worker = Resque::Worker.find(worker_id)
+    worker.unregister_worker
+  end
 
   #
   # stats

@@ -114,6 +114,14 @@ context "Resque::Worker" do
     assert_equal [], Resque.workers
   end
 
+  test "removes worker with stringified id" do
+    @worker.work(0) do
+      worker_id = Resque.workers[0].to_s
+      Resque.remove_worker(worker_id)
+      assert_equal [], Resque.workers
+   end
+  end
+
   test "records what it is working on" do
     @worker.work(0) do
       task = @worker.job
@@ -189,7 +197,8 @@ context "Resque::Worker" do
 
   test "sets $0 while working" do
     @worker.work(0) do
-      assert_equal "resque: Processing jobs since #{Time.now.to_i}", $0
+      ver = Resque::Version
+      assert_equal "resque-#{ver}: Processing jobs since #{Time.now.to_i}", $0
     end
   end
 
@@ -225,5 +234,10 @@ context "Resque::Worker" do
     @worker.work(0) do
       assert_equal 1, Resque.workers.size
     end
+  end
+
+  test "Processed jobs count" do
+    @worker.work(0)
+    assert_equal 1, Resque.info[:processed]
   end
 end
