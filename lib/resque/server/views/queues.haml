@@ -77,26 +77,26 @@
   %p.intro
     The list below contains all the registered queues with the number of jobs currently in the queue. Select a queue from above to view all jobs currently pending on the queue.
   %ol.queues
-    :jabs
-      :ready
-        $.queues .delete
-          :click
-            // TODO FIX THIS ISSUE: http://gist.github.com/collin/jabs/issues#issue/7
-            var action = @action
-            fun success_handler
-              .closest 'li'
-                .remove
-                
-            .siblings '.size'
-              if parseInt(@innerHTML, 10) != 0
-                alert("WILL NOT DELETE A QUEUE WITH JOBS IN IT. USE COMMAND LINE IF YOU REALLY WANT TO")
-              else if confirm("Really DELETE this queue?")
-                .ajax
-                  type: 'delete'
-                  url: action
-                  success: success_handler
+    / :jabs
+    /   :ready
+    /     $.queues .delete
+    /       :click
+    /         // TODO FIX THIS ISSUE: http://gist.github.com/collin/jabs/issues#issue/7
+    /         var action = @action
+    /         fun success_handler
+    /           .closest 'li'
+    /             .remove
+    /             
+    /         .siblings '.size'
+    /           if parseInt(@innerHTML, 10) != 0
+    /             alert("WILL NOT DELETE A QUEUE WITH JOBS IN IT. USE COMMAND LINE IF YOU REALLY WANT TO")
+    /           else if confirm("Really DELETE this queue?")
+    /             .ajax
+    /               type: 'delete'
+    /               url: action
+    /               success: success_handler
                   
-    - for queue in Resque.queues
+    - for queue in Resque.queues.sort
       %li
         .buttons
           %img.delete(src="delete.png" action="queues/#{queue}")
@@ -105,7 +105,7 @@
           %img{:src=>u("start.png")}
         .meta
           %h2
-            %a.queue{ :href => url("queues/#{queue}") }= queue.name.titleize
+            %a.queue{ :href => url("queues/#{queue}") }= queue.name
           .count #{queue.size.humanize} scheduled
         - if queue.failure_queues.any?
           %ul.failures

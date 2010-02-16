@@ -3,7 +3,7 @@ require 'sinatra/async'
 
 require 'haml'
 require 'sass'
-require 'jabs'
+# require 'jabs'
 require 'compass'
 
 require 'resque'

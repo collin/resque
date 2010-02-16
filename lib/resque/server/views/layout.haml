@@ -12,15 +12,15 @@
     %script{ :src => url("ranger.js") }
     %script{ :src => url("sort_queues.js") }
     :javascript
-        jsio("from jsio.csp.client import CometSession");
-        jQuery(function($) {
-              session = new CometSession();
-              session.onread = function(data) { 
-                console.log(data)
-              }
-              session.onconnect = function() {}
-              session.connect("http://localhost:9292/csp");              
-        });
+        # jsio("from jsio.csp.client import CometSession");
+        # jQuery(function($) {
+        #       session = new CometSession();
+        #       session.onread = function(data) { 
+        #         console.log(data)
+        #       }
+        #       session.onconnect = function() {}
+        #       session.connect("http://localhost:9292/csp");              
+        # });
 
   %body
     .header

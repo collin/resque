@@ -36,34 +36,34 @@
         display: none
   
 
-:jabs
-  jQuery.fn.ajax = jQuery.ajax
-  :ready
-    $button.backtrace
-      :click
-        .parents 'li:first'
-          &ol.backtrace
-            .toggle 'fast'
-:jabs
-  :ready
-    $button
-      :click
-        var action = @action
-        fun handle_success
-          .closest 'li'
-            .remove
-        .ajax
-          url: action
-          type: 'post'
-          success: handle_success
+/ :jabs
+/   jQuery.fn.ajax = jQuery.ajax
+/   :ready
+/     $button.backtrace
+/       :click
+/         .parents 'li:first'
+/           &ol.backtrace
+/             .toggle 'fast'
+/ :jabs
+/   :ready
+/     $button
+/       :click
+/         var action = @action
+/         fun handle_success
+/           .closest 'li'
+/             .remove
+/         .ajax
+/           url: action
+/           type: 'post'
+/           success: handle_success
 
 %ul.failure_queues
-  - Resque::Failure.failure_queues.each do |queue|
+  - Resque::Failure.failure_queues.sort.each do |queue|
     - if queue.any?
       %li[queue]
         .call 
-          #{queue.queue["queue_name"]} 
-          %sup called with: #{queue.payload["args"]}
+          #{queue.queue_name} 
+          -#%sup called with: #{h queue.payload["args"][0,200]}
         .error #{queue.error}
         .tools
           .count #{queue.count} failures

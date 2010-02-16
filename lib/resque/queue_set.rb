@@ -68,6 +68,12 @@ module Resque
       raise "Unimplemented"
     end
     
+    def queue_name
+      queue, error = *@queue_name.gsub(/^failures:/, '').split(':')
+      
+      "#{queue}: #{error}"
+    end
+    
     def count
       Resque.redis.llen(@queue_name).to_i
     end

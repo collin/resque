@@ -39,13 +39,9 @@ OptionParser.new do |opts|
 end.parse!
 
 ARGV.clear # some options interfere with other libraries
-puts %{Missing option: --load PATH} if options[:load].nil?
-exit(1) if options[:load].nil?
-
-puts %{Missing option: --resque_uri HOST:PORT} if options[:resque_uri].nil?
-exit(1) if options[:resque_uri].nil?
-
-puts %{Missing option: --queue_file PATH} if options[:queues].nil?
-exit(1) if options[:queues].nil?
+puts %{Missing option: --load PATH}             if options[:load].nil?
+puts %{Missing option: --resque_uri HOST:PORT}  if options[:resque_uri].nil?
+puts %{Missing option: --queue_file PATH}       if options[:queues].nil?
+exit(1) if options[:load].nil? or options[:queues].nil? or options[:resque_uri].nil?
 
 Resque::Pool.start(options)
