@@ -6,19 +6,16 @@ rescue LoadError
   require 'json'
 end
 
-
 require 'set'
 require 'pathname'
-require 'activesupport'
-require 'resque/version'
-
-require 'resque/errors'
+require 'active_support'
 
 module Resque
   def self.root
     @root ||= Pathname.new(__FILE__).dirname.expand_path
   end
 
+  require Resque.root+'resque/version'
   require Resque.root+'resque/errors'
   require Resque.root+'resque/queue_set'
 

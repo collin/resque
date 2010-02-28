@@ -142,12 +142,13 @@ module Resque
     # one.
     def process(job = nil)
       return unless job ||= reserve
-
+           
       begin
         working_on job
         job.perform
       rescue Object => e
-        log "#{job.inspect} failed: #{e.inspect}"
+        # log "failed: #{job.inspect}  #{e.inspect}"
+        # log e.backtrace.join("\n")
         job.fail(e)
         failed!
       else

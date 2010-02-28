@@ -74,7 +74,7 @@ module Resque
     # Given an exception object, hands off the needed parameters to
     # the Failure module.
     def fail(exception)
-      Failure.create \
+      failuer = Failure.create \
         :payload   => payload,
         :exception => exception,
         :worker    => worker,
@@ -84,7 +84,7 @@ module Resque
     # Creates an identical job, essentially placing this job back on
     # the queue.
     def recreate
-      self.class.create(queue, payload_class, *args)
+      self.class.create(queue, @payload['class'], *args)
     end
 
     # String representation

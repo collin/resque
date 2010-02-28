@@ -36,14 +36,29 @@
         display: none
   
 
-/ :jabs
-/   jQuery.fn.ajax = jQuery.ajax
-/   :ready
-/     $button.backtrace
-/       :click
-/         .parents 'li:first'
-/           &ol.backtrace
-/             .toggle 'fast'
+:javascript
+  jQuery(function() {
+    $('button.backtrace').click(function() {
+      $(this).parents('li:first').find('ol.backtrace').toggle('fast');
+    });
+    
+    $('button').click(function() {
+      var self = $(this);
+      var action = self.attr('action');
+      if(action) {
+        $.ajax({
+          url: action,
+          type: 'post',
+          success: function() {
+            self.closest('li').remove();
+          }
+        })
+      }
+    });
+  });
+
+
+
 / :jabs
 /   :ready
 /     $button

@@ -17,6 +17,18 @@ OptionParser.new do |opts|
     options[:load] = path
   end
 
+  opts.on("-v", "--verbose",
+          "Low verbosity logging.") do
+            
+    options[:verbose] = true
+  end
+
+  opts.on("-vv", "--very_verbose",
+          "High verbosity logging.") do
+            
+    options[:veryverbose] = true
+  end
+
   opts.on("-r", "--resque_uri HOST:PORT",
           "Host and port to connect to resque with.") do |uri|
      options[:resque_uri] = uri       
