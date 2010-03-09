@@ -31,38 +31,39 @@
             left: 3px
           text-align: center
           text-indent: -4px
-
-  :jabs
-    jQuery.fn.ajax = jQuery.ajax;
-    def whitelist expr
-      :keyup
-        @value = parseInt(@value, 10) || 0
-        .change
-    :ready
-      $ .concurrency
-        &.up
-          :click
-            $ #concurrency
-              @value = parseInt(@value, 10) + 1
-              .change
-    :ready
-      $ .concurrency
-        &.down
-          :click
-            $ #concurrency
-              if @value > 0
-                @value = parseInt(@value, 10) - 1
-                .change
-    :ready
-      $ #concurrency
-        .whitelist /\d+/
-        :change
-          unless @value
-            @value = 0
-          var value = @value
-          .ajax
-            type: 'post'
-            url: '/concurrency/'+value
+          
+    
+  /:jabs
+  /  jQuery.fn.ajax = jQuery.ajax;
+  /  def whitelist expr
+  /    :keyup
+  /      @value = parseInt(@value, 10) || 0
+  /      .change
+  /  :ready
+  /    $ .concurrency
+  /      &.up
+  /        :click
+  /          $ #concurrency
+  /            @value = parseInt(@value, 10) + 1
+  /            .change
+  /  :ready
+  /    $ .concurrency
+  /      &.down
+  /        :click
+  /          $ #concurrency
+  /            if @value > 0
+  /              @value = parseInt(@value, 10) - 1
+  /              .change
+  /  :ready
+  /    $ #concurrency
+  /      .whitelist /\d+/
+  /      :change
+  /        unless @value
+  /          @value = 0
+  /        var value = @value
+  /        .ajax
+  /          type: 'post'
+  /          url: '/concurrency/'+value
           
       
   %h2 Concurrency Level:

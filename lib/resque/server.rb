@@ -3,29 +3,10 @@ require 'sinatra/async'
 
 require 'haml'
 require 'sass'
-# require 'jabs'
 require 'compass'
 
 require 'resque'
 require 'resque/version'
-
-module Haml
-  module Filters
-    module Jabs
-      include Haml::Filters::Base
-      # @see Base#render
-      def render(text)
-        %{
-        <script>
-        //<![CDATA[
-          #{::Jabs::Engine.new(text.rstrip).render}
-        //]]>
-        </script>
-        }
-      end
-    end
-  end
-end
 
 class Numeric
   def humanize
