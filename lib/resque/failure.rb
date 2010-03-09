@@ -29,7 +29,7 @@ module Resque
     end
 
     # Returns the current backend class. If none has been set, falls
-    # back to `Resque::Failure::Redis`
+    # back to `Resque::Failure::QueuePerError `
     def self.backend
       return @backend if @backend
       require Resque.root+'resque/failure/queue_per_error'

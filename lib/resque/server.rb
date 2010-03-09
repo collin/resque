@@ -1,5 +1,4 @@
 require 'sinatra/base'
-require 'sinatra/async'
 
 require 'haml'
 require 'sass'
@@ -16,7 +15,6 @@ end
 
 module Resque
   class Server < Sinatra::Base
-    register Sinatra::Async
     
     dir = File.dirname(File.expand_path(__FILE__))
 
@@ -140,13 +138,6 @@ module Resque
       return "WontDeleteNonEmptyQueu" if queue.any?
       queue.delete
       "OK"
-    end
-
-    aget "/pool_table" do
-      Resque::Pool.list do |list, peers|
-        @list, @peers = list, peers
-        body(haml :pool_table, :layout => false)
-      end
     end
 
     get "/failed" do
