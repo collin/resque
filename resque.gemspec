@@ -9,10 +9,10 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Chris Wanstrath"]
-  s.date = %q{2010-02-28}
+  s.date = %q{2010-03-09}
   s.description = %q{}
   s.email = %q{chris@ozmm.org}
-  s.executables = ["resque", "resque-pool", "resque-pool-list", "resque-web"]
+  s.executables = ["resque", "resque-web"]
   s.extra_rdoc_files = [
     "LICENSE",
      "README.markdown"
@@ -25,8 +25,6 @@ Gem::Specification.new do |s|
      "Rakefile",
      "VERSION",
      "bin/resque",
-     "bin/resque-pool",
-     "bin/resque-pool-list",
      "bin/resque-web",
      "config.ru",
      "deps.rip",
@@ -51,8 +49,6 @@ Gem::Specification.new do |s|
      "lib/resque/failure/redis.rb",
      "lib/resque/helpers.rb",
      "lib/resque/job.rb",
-     "lib/resque/pool.rb",
-     "lib/resque/pool/peer.rb",
      "lib/resque/queue_set.rb",
      "lib/resque/server.rb",
      "lib/resque/server/public/csp.js",
@@ -109,8 +105,6 @@ Gem::Specification.new do |s|
      "lib/resque/server/views/layout.haml",
      "lib/resque/server/views/next_more.haml",
      "lib/resque/server/views/overview.haml",
-     "lib/resque/server/views/pool.haml",
-     "lib/resque/server/views/pool_table.haml",
      "lib/resque/server/views/queues.haml",
      "lib/resque/server/views/screen.sass",
      "lib/resque/server/views/stats.haml",
@@ -123,7 +117,6 @@ Gem::Specification.new do |s|
      "pkg/resque-1.1.0.gem",
      "pkg/resque-1.4.0.gem",
      "resque.gemspec",
-     "resque2.rb",
      "samples/animator.rb",
      "samples/bezier_playground.rb",
      "samples/circle_collision.rb",
@@ -224,26 +217,12 @@ Gem::Specification.new do |s|
      "test/redis-test.pid",
      "test/resque_test.rb",
      "test/test_helper.rb",
-     "test/worker_test.rb",
-     "vendor/csp/README.markdown",
-     "vendor/csp/examples/chatserver.ru",
-     "vendor/csp/examples/echoserver.ru",
-     "vendor/csp/examples/env.ru",
-     "vendor/csp/examples/orbited.ru",
-     "vendor/csp/lib/csp.rb",
-     "vendor/csp/lib/csp/application.rb",
-     "vendor/csp/lib/csp/async_body.rb",
-     "vendor/csp/lib/csp/async_request.rb",
-     "vendor/csp/lib/csp/packet.rb",
-     "vendor/csp/lib/csp/session.rb",
-     "vendor/csp/lib/static/csp.js",
-     "vendor/csp/lib/static/echotest.html",
-     "vendor/csp/lib/static/jquery.js"
+     "test/worker_test.rb"
   ]
   s.homepage = %q{http://github.com/defunkt/resque}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.5}
+  s.rubygems_version = %q{1.3.6}
   s.summary = %q{}
   s.test_files = [
     "test/resque_test.rb",
