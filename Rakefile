@@ -42,6 +42,10 @@ begin
     gemspec.add_dependency "redis-namespace"
     gemspec.add_dependency "vegas", ">=0.1.2"
     gemspec.add_dependency "sinatra", ">=0.9.2"
+    gemspec.add_dependency "compass"
+    gemspec.add_dependency "json"
+    gemspec.add_dependency "activesupport", "3.0.pre"
+    
     gemspec.add_development_dependency "jeweler"
     gemspec.files = Dir["**/*"]
   end

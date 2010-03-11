@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{resque}
-  s.version = "1.5.3.collin"
+  s.version = "1.5.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Chris Wanstrath"]
-  s.date = %q{2010-03-09}
+  s.date = %q{2010-03-11}
   s.description = %q{}
   s.email = %q{chris@ozmm.org}
   s.executables = ["resque", "resque-web"]
@@ -116,6 +116,8 @@ Gem::Specification.new do |s|
      "lib/resque/worker.rb",
      "pkg/resque-1.1.0.gem",
      "pkg/resque-1.4.0.gem",
+     "pkg/resque-1.5.2.gem",
+     "pkg/resque-1.5.3.collin.gem",
      "resque.gemspec",
      "samples/animator.rb",
      "samples/bezier_playground.rb",
@@ -244,12 +246,18 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<redis-namespace>, [">= 0"])
       s.add_runtime_dependency(%q<vegas>, [">= 0.1.2"])
       s.add_runtime_dependency(%q<sinatra>, [">= 0.9.2"])
+      s.add_runtime_dependency(%q<compass>, [">= 0"])
+      s.add_runtime_dependency(%q<json>, [">= 0"])
+      s.add_runtime_dependency(%q<activesupport>, ["= 3.0.pre"])
       s.add_development_dependency(%q<jeweler>, [">= 0"])
     else
       s.add_dependency(%q<redis>, [">= 0"])
       s.add_dependency(%q<redis-namespace>, [">= 0"])
       s.add_dependency(%q<vegas>, [">= 0.1.2"])
       s.add_dependency(%q<sinatra>, [">= 0.9.2"])
+      s.add_dependency(%q<compass>, [">= 0"])
+      s.add_dependency(%q<json>, [">= 0"])
+      s.add_dependency(%q<activesupport>, ["= 3.0.pre"])
       s.add_dependency(%q<jeweler>, [">= 0"])
     end
   else
@@ -257,6 +265,9 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<redis-namespace>, [">= 0"])
     s.add_dependency(%q<vegas>, [">= 0.1.2"])
     s.add_dependency(%q<sinatra>, [">= 0.9.2"])
+    s.add_dependency(%q<compass>, [">= 0"])
+    s.add_dependency(%q<json>, [">= 0"])
+    s.add_dependency(%q<activesupport>, ["= 3.0.pre"])
     s.add_dependency(%q<jeweler>, [">= 0"])
   end
 end
