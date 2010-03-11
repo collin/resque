@@ -248,7 +248,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<sinatra>, [">= 0.9.2"])
       s.add_runtime_dependency(%q<compass>, [">= 0"])
       s.add_runtime_dependency(%q<json>, [">= 0"])
-      s.add_runtime_dependency(%q<activesupport>, ["= 3.0.pre"])
+      s.add_runtime_dependency(%q<activesupport>, [">= 0"])
       s.add_development_dependency(%q<jeweler>, [">= 0"])
     else
       s.add_dependency(%q<redis>, [">= 0"])
@@ -257,7 +257,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<sinatra>, [">= 0.9.2"])
       s.add_dependency(%q<compass>, [">= 0"])
       s.add_dependency(%q<json>, [">= 0"])
-      s.add_dependency(%q<activesupport>, ["= 3.0.pre"])
+      s.add_dependency(%q<activesupport>, [">= 0"])
       s.add_dependency(%q<jeweler>, [">= 0"])
     end
   else
@@ -267,7 +267,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<sinatra>, [">= 0.9.2"])
     s.add_dependency(%q<compass>, [">= 0"])
     s.add_dependency(%q<json>, [">= 0"])
-    s.add_dependency(%q<activesupport>, ["= 3.0.pre"])
+    s.add_dependency(%q<activesupport>, [">= 0"])
     s.add_dependency(%q<jeweler>, [">= 0"])
   end
 end
