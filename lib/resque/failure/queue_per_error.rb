@@ -4,7 +4,7 @@ module Resque
     FailureQueues = "resque:failure_queues"
     
     def self.failure_queues
-      QueueSet.new("failure_queues", FailureQueue)
+      QueueSet.new(FailueQueues, FailureQueue)
     end
     
     # A Failure backend that stores exceptions in Redis. This implementation stores an individual queue per

@@ -73,7 +73,7 @@
 /           success: handle_success
 
 %ul.failure_queues
-  - Resque::Failure.failure_queues.sort.each do |queue|
+  - Resque::QueueSet.new("resque:failure_queues", Resque::FailureQueue).sort.each do |queue|
     - if queue.any?
       %li[queue]
         .call 
