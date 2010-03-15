@@ -80,7 +80,7 @@ module Resque
     
     def reschedule
       while(failed = Resque.decode(Resque.redis.lpop(@queue_name))) do
-        Resque::Job.create failed["queue"], failed["payload"]["class"], *failed["payload"]["args"]
+        Resque::Job.create failed["queue"].gsub('queue_name', ''), failed["payload"]["class"], *failed["payload"]["args"]
         Resque.redis.decr("failure_counter")
         Resque.redis.decr("stat:failed")
       end

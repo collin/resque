@@ -74,7 +74,7 @@ module Resque
     # Given an exception object, hands off the needed parameters to
     # the Failure module.
     def fail(exception)
-      failuer = Failure.create \
+      failure = Failure.create \
         :payload   => payload,
         :exception => exception,
         :worker    => worker,
